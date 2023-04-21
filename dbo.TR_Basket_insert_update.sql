@@ -1,0 +1,15 @@
+CREATE TRIGGER TR_Basket_insert ON dbo.Basket AFTER INSERT
+AS
+SET NOCOUNT ON;
+IF EXISTS (SELECT COUNT(*) FROM dbo.Basket GROUP BY ID_SKU HAVING COUNT(*) >= 2)
+	BEGIN
+		UPDATE dbo.Basket
+		SET DiscountValue = Value * 0.05
+		WHERE ID_SKU = (SELECT ID_SKU FROM dbo.Basket GROUP BY ID_SKU HAVING COUNT(*) >= 2)
+	END
+ELSE 
+	BEGIN
+		UPDATE dbo.Basket
+		SET DiscountValue = 0
+	END;
+GO
